@@ -22,8 +22,83 @@ const getWalletFromFile = () => {
 };
 
 
+const retirerWallet = (req,res,id) =>{
+  let body = "";
+  const wallets = getWalletFromFile();
+    req.on("data", chunk => {
+    body += chunk.toString();
+  });
+   req.on("end", () => {
+    try {
+      const parsed = JSON.parse(body);
+
+      if (!parsed.amount || parsed.amount <= 0) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ message: "Invalid amount" }));
+      }
+
+      const wallet = wallets.find(w => w.id === Number(id));
+
+      if (!wallet) {
+        res.writeHead(404, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ message: "Wallet not found" }));
+      }
+
+      if(wallet.sold !=0){
+              wallet.sold -= Number(parsed.amount);
+      }
 
 
+      saveWalletToFile(wallets);
+
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(wallet));
+
+    } catch (error) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Invalid JSON" }));
+    }
+  });
+
+}
+
+const deposerWallet = (req, res, id) => {
+  let body = "";
+  const wallets = getWalletFromFile();
+
+  req.on("data", chunk => {
+    body += chunk.toString();
+  });
+
+  req.on("end", () => {
+    try {
+      const parsed = JSON.parse(body);
+
+      if (!parsed.amount || parsed.amount <= 0) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ message: "Invalid amount" }));
+      }
+
+      const wallet = wallets.find(w => w.id === Number(id));
+
+      if (!wallet) {
+        res.writeHead(404, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ message: "Wallet not found" }));
+      }
+
+      wallet.sold += Number(parsed.amount);
+
+      saveWalletToFile(wallets);
+
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(wallet));
+
+    } catch (error) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Invalid JSON" }));
+    }
+  });
+};
 
 
 
@@ -78,5 +153,7 @@ const createWallet = (req, res) => {
 
 module.exports = {
   getWallets,
-  createWallet
+  createWallet,
+  deposerWallet,
+  retirerWallet
 };
