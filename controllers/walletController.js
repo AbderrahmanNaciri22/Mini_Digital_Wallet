@@ -3,16 +3,19 @@ const fs = require("fs");
 const path = require("path");
 
 const filePath = path.join(__dirname, "../data/wallet.json");
+const userPath = path.join(__dirname, "../data/users.json");
+
 
 
 let wallets = [];
+
 
 const saveWalletToFile = (wallets) => {
   fs.writeFileSync(filePath, JSON.stringify(wallets, null, 2));
 };
 
 
-const getWalletFromFile = () => {
+const getWalletFromFile = (filePath) => {
   if (!fs.existsSync(filePath)) {
     fs.writeFileSync(filePath, "[]");
   }
@@ -21,10 +24,12 @@ const getWalletFromFile = () => {
   return JSON.parse(data);
 };
 
+const users = getWalletFromFile(userPath);
+
 
 const retirerWallet = (req,res,id) =>{
   let body = "";
-  const wallets = getWalletFromFile();
+  const wallets = getWalletFromFile(filePath);
     req.on("data", chunk => {
     body += chunk.toString();
   });
@@ -44,8 +49,11 @@ const retirerWallet = (req,res,id) =>{
         return res.end(JSON.stringify({ message: "Wallet not found" }));
       }
 
-      if(wallet.sold !=0){
+      if(wallet.sold !=0 && wallet.sold>=Number(parsed.amount)){
               wallet.sold -= Number(parsed.amount);
+      }else{
+          res.writeHead(404, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ message: "Insufficient balance" }));
       }
 
 
@@ -64,7 +72,7 @@ const retirerWallet = (req,res,id) =>{
 
 const deposerWallet = (req, res, id) => {
   let body = "";
-  const wallets = getWalletFromFile();
+  const wallets = getWalletFromFile(filePath);
 
   req.on("data", chunk => {
     body += chunk.toString();
@@ -104,52 +112,56 @@ const deposerWallet = (req, res, id) => {
 
 
 const getWallets = (req, res) => {
-  const wallets = getWalletFromFile();
+  const wallets = getWalletFromFile(filePath);
   res.writeHead(200, { "Content-Type": "application/json" });
   res.end(JSON.stringify(wallets));
 };
 
 const createWallet = (req, res) => {
   let body = "";
-   const wallet = getWalletFromFile();
-
 
   req.on("data", chunk => {
     body += chunk.toString();
   });
 
-
   req.on("end", () => {
     try {
       const parsed = JSON.parse(body);
 
-      if (!parsed.name) {
-        res.writeHead(400, { "Content-Type": "application/json" });
-        return res.end(JSON.stringify({message: "Name required"}));
+      if (!parsed.name || !parsed.user_id) {
+        return res.end(JSON.stringify({ message: "Name and user_id required" }));
+      }
+
+      const wallets = getWalletFromFile(filePath);
+      const users = getWalletFromFile(userPath);
+
+      const user = users.find(u => u.id === Number(parsed.user_id));
+
+      if (!user) {
+        return res.end(JSON.stringify({ message: "User not found" }));
       }
 
       const newWallet = {
-        id: wallet.length + 1,
+        id: wallets.length + 1,
         name: parsed.name,
-        user_id:parsed.user_id,
-        sold:parsed.sold
+        user_id: Number(parsed.user_id),
+        sold: 0
       };
 
-
-      wallet.push(newWallet);
-
-
-      saveWalletToFile(wallet);
+      wallets.push(newWallet);
+      saveWalletToFile(wallets);
 
       res.writeHead(201, { "Content-Type": "application/json" });
       res.end(JSON.stringify(newWallet));
 
     } catch (error) {
+      console.log("REAL ERROR:", error);
       res.writeHead(400, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ message: "Invalid JSON" }));
+      res.end(JSON.stringify({ message: "Server error" }));
     }
   });
 };
+
 
 module.exports = {
   getWallets,

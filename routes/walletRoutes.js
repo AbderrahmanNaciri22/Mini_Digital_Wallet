@@ -13,9 +13,9 @@ const walletRoutes = (req, res) => {
   }
 
   if (req.method === "POST" && pathname === "/wallets") {
-    createWallet(req, res);
-    return true;
+    return createWallet(req, res);
   }
+
 
   const match = pathname.match(/^\/wallets\/(\d+)\/deposit$/);
 
