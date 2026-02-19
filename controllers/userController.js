@@ -17,11 +17,86 @@ const getUsersFromFile = () => {
   return JSON.parse(data);
 };
 
-const getUsers = (req, res) => {
+const getAllUsers = (req, res) => {
   const users = getUsersFromFile();
   res.writeHead(200, { "Content-Type": "application/json" });
   res.end(JSON.stringify(users));
 
+};
+
+const getUser = (req,res,id)=>{
+  const users = getUsersFromFile();
+  res.writeHead(200, { "Content-Type": "application/json" });
+  res.end(JSON.stringify(users[id]));
+}
+
+
+const updateUser = (req, res, id) => {
+  let body = "";
+
+  req.on("data", chunk => {
+    body += chunk.toString();
+  });
+
+  req.on("end", () => {
+    try {
+      const parsed = JSON.parse(body);
+
+      const users = getUsersFromFile();
+
+      const index = users.findIndex(
+        u => u.id === parseInt(id)
+      );
+
+      if (index === -1) {
+        res.writeHead(404, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({
+          message: "User not found"
+        }));
+      }
+
+
+      if (parsed.name !== undefined) {
+        users[index].name = parsed.name;
+      }
+
+      saveUsersToFile(users);
+
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(users[index]));
+
+    } catch (error) {
+      console.error(error);
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({
+        message: "Invalid JSON"
+      }));
+    }
+  });
+};
+
+const deleteUser = (req, res, id) => {
+  const users = getUsersFromFile();
+  const index = users.findIndex(
+    u => u.id === parseInt(id)
+  );
+
+  if (index === -1) {
+    res.writeHead(404, { "Content-Type": "application/json" });
+    return res.end(JSON.stringify({
+      message: "User not found"
+    }));
+  }
+
+  const deletedUser = users.splice(index, 1);
+
+  saveUsersToFile(users);
+
+  res.writeHead(200, { "Content-Type": "application/json" });
+  res.end(JSON.stringify({
+    message: "User deleted successfully",
+    user: deletedUser[0]
+  }));
 };
 
 
@@ -42,18 +117,14 @@ const createUser = (req, res) => {
     try {
       const parsed = JSON.parse(body);
 
-      if (!parsed.name || !parsed.email) {
+      if (!parsed.name) {
         res.writeHead(400, { "Content-Type": "application/json" });
-        return res.end(JSON.stringify({
-          message: "Name and email required"
-        }));
+        return res.end(JSON.stringify({message: "Name required"}));
       }
-
 
       const newUser = {
         id: users.length + 1,
         name: parsed.name,
-        email: parsed.email
       };
 
 
@@ -74,6 +145,9 @@ const createUser = (req, res) => {
 
 
 module.exports = {
-  getUsers,
-  createUser
+  getAllUsers,
+  getUser,
+  createUser,
+  updateUser,
+  deleteUser
 };
