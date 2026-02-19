@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "name": "abderrahman",
+    "user_id": 1,
+    "sold": 100
+  },
+  {
+    "id": 2,
+    "name": "abderrahman",
+    "user_id": 1,
+    "sold": 100
+  },
+  {
+    "id": 3,
+    "name": "abderrahman",
+    "user_id": 1,
+    "sold": 100
+  }
+]

@@ -1,11 +1,16 @@
 const http = require("http");
 const userRoutes = require("./routes/userRoutes");
+const walletRoutes = require("./routes/walletRoutes");
 
 const server = http.createServer((req, res) => {
 
   // Users routes
-  const handled = userRoutes(req, res);
-  if (handled !== false) return;
+  const userHandled = userRoutes(req, res);
+  if (userHandled !== false) return;
+
+  // Wallet routes
+  const walletHandled = walletRoutes(req, res);
+  if (walletHandled !== false) return;
 
   // 404 fallback
   res.writeHead(404, { "Content-Type": "application/json" });
