@@ -17,19 +17,22 @@ const walletRoutes = (req, res) => {
   }
 
 
-  const match = pathname.match(/^\/wallets\/(\d+)\/deposit$/);
+  const match = pathname.match(/^\/wallets\/(\d+)\/deposit\/(\d+)$/);
 
   if (match && req.method === "PUT") {
     const id = match[1];
-    deposerWallet(req, res, id);
+    const user = match[2];
+
+    deposerWallet(req, res, id,user);
     return true;
   }
 
-   const match2 = pathname.match(/^\/wallets\/(\d+)\/retirer$/);
+   const match2 = pathname.match(/^\/wallets\/(\d+)\/retirer\/(\d+)$/);
 
   if (match2 && req.method === "PUT") {
     const id = match2[1];
-    retirerWallet(req, res, id);
+    const userId = match2[2]
+    retirerWallet(req, res, id,userId);
     return true;
   }
 

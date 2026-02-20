@@ -4,14 +4,16 @@ const path = require("path");
 
 const filePath = path.join(__dirname, "../data/wallet.json");
 const userPath = path.join(__dirname, "../data/users.json");
+const waletTransactionPath = path.join(__dirname, "../data/walletTransction.json");
+
 
 
 
 let wallets = [];
 
 
-const saveWalletToFile = (wallets) => {
-  fs.writeFileSync(filePath, JSON.stringify(wallets, null, 2));
+const saveWalletToFile = (data,filePath) => {
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 };
 
 
@@ -27,8 +29,9 @@ const getWalletFromFile = (filePath) => {
 const users = getWalletFromFile(userPath);
 
 
-const retirerWallet = (req,res,id) =>{
+const retirerWallet = (req,res,id,userId) =>{
   let body = "";
+
   const wallets = getWalletFromFile(filePath);
     req.on("data", chunk => {
     body += chunk.toString();
@@ -44,12 +47,13 @@ const retirerWallet = (req,res,id) =>{
 
       const wallet = wallets.find(w => w.id === Number(id));
 
+
       if (!wallet) {
         res.writeHead(404, { "Content-Type": "application/json" });
         return res.end(JSON.stringify({ message: "Wallet not found" }));
       }
-
-      if(wallet.sold !=0 && wallet.sold>=Number(parsed.amount)){
+      if(wallet.user_id == userId){
+                if(wallet.sold !=0 && wallet.sold>=Number(parsed.amount)){
               wallet.sold -= Number(parsed.amount);
       }else{
           res.writeHead(404, { "Content-Type": "application/json" });
@@ -57,10 +61,16 @@ const retirerWallet = (req,res,id) =>{
       }
 
 
-      saveWalletToFile(wallets);
+      saveWalletToFile(wallets,filePath);
 
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(wallet));
+      }else{
+         res.writeHead(200, { "Content-Type": "application/json" });
+         res.end(JSON.stringify("Accès non autorisé"));
+      }
+
+
 
     } catch (error) {
       res.writeHead(400, { "Content-Type": "application/json" });
@@ -70,9 +80,9 @@ const retirerWallet = (req,res,id) =>{
 
 }
 
-const deposerWallet = (req, res, id) => {
+const deposerWallet = async (req, res, id,user) => {
   let body = "";
-  const wallets = getWalletFromFile(filePath);
+  const wallets = await getWalletFromFile(filePath);
 
   req.on("data", chunk => {
     body += chunk.toString();
@@ -89,18 +99,27 @@ const deposerWallet = (req, res, id) => {
 
       const wallet = wallets.find(w => w.id === Number(id));
 
+      
       if (!wallet) {
         res.writeHead(404, { "Content-Type": "application/json" });
         return res.end(JSON.stringify({ message: "Wallet not found" }));
       }
 
-      wallet.sold += Number(parsed.amount);
 
-      saveWalletToFile(wallets);
+      
+      if(wallet.user_id == user){
 
-      res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify(wallet));
+         wallet.sold += Number(parsed.amount);
 
+         saveWalletToFile(wallets,filePath);
+
+         res.writeHead(200, { "Content-Type": "application/json" });
+         res.end(JSON.stringify(wallet));
+
+      }else{
+         res.writeHead(200, { "Content-Type": "application/json" });
+         res.end(JSON.stringify("Accès non autorisé"));
+      }
     } catch (error) {
       res.writeHead(400, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ message: "Invalid JSON" }));
@@ -149,7 +168,7 @@ const createWallet = (req, res) => {
       };
 
       wallets.push(newWallet);
-      saveWalletToFile(wallets);
+      saveWalletToFile(wallets,filePath);
 
       res.writeHead(201, { "Content-Type": "application/json" });
       res.end(JSON.stringify(newWallet));
