@@ -1,0 +1,107 @@
+[
+  {
+    "id": 1,
+    "type": "deposer",
+    "user": "1",
+    "amount": "+10",
+    "date_action": "20/02/2026 10:51:35"
+  },
+  {
+    "id": 2,
+    "type": "deposer",
+    "user": "1",
+    "amount": "+10",
+    "date_action": "20/02/2026 10:51:35"
+  },
+  {
+    "id": 3,
+    "type": "deposer",
+    "user": "1",
+    "amount": "+10",
+    "date_action": "20/02/2026 10:51:35"
+  },
+  {
+    "id": 4,
+    "type": "deposer",
+    "user": "1",
+    "amount": "+10",
+    "date_action": "20/02/2026 10:51:35"
+  },
+  {
+    "id": 5,
+    "type": "deposer",
+    "user": "1",
+    "amount": "+10",
+    "date_action": "20/02/2026 10:51:35"
+  },
+  {
+    "id": 6,
+    "type": "deposer",
+    "user": "1",
+    "amount": "+10",
+    "date_action": "20/02/2026 10:51:35"
+  },
+  {
+    "id": 7,
+    "type": "deposer",
+    "user": "1",
+    "amount": "+10",
+    "date_action": "20/02/2026 10:51:35"
+  },
+  {
+    "id": 8,
+    "type": "deposer",
+    "user": "1",
+    "amount": "+10",
+    "date_action": "20/02/2026 10:51:35"
+  },
+  {
+    "id": 9,
+    "type": "deposer",
+    "user": "1",
+    "amount": "+10",
+    "date_action": "20/02/2026 10:51:35"
+  },
+  {
+    "id": 10,
+    "type": "deposer",
+    "user": "1",
+    "amount": "+10",
+    "date_action": "20/02/2026 10:51:35"
+  },
+  {
+    "id": 11,
+    "type": "deposer",
+    "user": "1",
+    "amount": "+10",
+    "date_action": "20/02/2026 10:51:35"
+  },
+  {
+    "id": 12,
+    "type": "deposer",
+    "user": "1",
+    "amount": "+10",
+    "date_action": "20/02/2026 10:51:35"
+  },
+  {
+    "id": 13,
+    "type": "retirer",
+    "user": "1",
+    "amount": "-10",
+    "date_action": "20/02/2026 10:51:35"
+  },
+  {
+    "id": 14,
+    "type": "retirer",
+    "user": "1",
+    "amount": "-10",
+    "date_action": "20/02/2026 10:51:35"
+  },
+  {
+    "id": 15,
+    "type": "retirer",
+    "user": "1",
+    "amount": "-10",
+    "date_action": "20/02/2026 10:51:35"
+  }
+]

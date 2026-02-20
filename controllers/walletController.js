@@ -6,7 +6,17 @@ const filePath = path.join(__dirname, "../data/wallet.json");
 const userPath = path.join(__dirname, "../data/users.json");
 const waletTransactionPath = path.join(__dirname, "../data/walletTransction.json");
 
+const now = new Date();
 
+const day = String(now.getDate()).padStart(2, "0");
+const month = String(now.getMonth() + 1).padStart(2, "0");
+const year = now.getFullYear();
+
+const hours = String(now.getHours()).padStart(2, "0");
+const minutes = String(now.getMinutes()).padStart(2, "0");
+const seconds = String(now.getSeconds()).padStart(2, "0");
+
+const formattedDate = `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 
 
 let wallets = [];
@@ -31,6 +41,8 @@ const users = getWalletFromFile(userPath);
 
 const retirerWallet = (req,res,id,userId) =>{
   let body = "";
+  let transctions=[];
+  transctions = getWalletFromFile(waletTransactionPath);
 
   const wallets = getWalletFromFile(filePath);
     req.on("data", chunk => {
@@ -52,9 +64,19 @@ const retirerWallet = (req,res,id,userId) =>{
         res.writeHead(404, { "Content-Type": "application/json" });
         return res.end(JSON.stringify({ message: "Wallet not found" }));
       }
+
       if(wallet.user_id == userId){
                 if(wallet.sold !=0 && wallet.sold>=Number(parsed.amount)){
               wallet.sold -= Number(parsed.amount);
+      transction = {
+        id:transctions.length + 1,
+        type:"retirer",
+        user: userId,
+        amount:"-"+parsed.amount,
+        date_action:formattedDate,
+      }
+        transctions.push(transction);
+        saveWalletToFile(transctions,waletTransactionPath);
       }else{
           res.writeHead(404, { "Content-Type": "application/json" });
         return res.end(JSON.stringify({ message: "Insufficient balance" }));
@@ -62,6 +84,8 @@ const retirerWallet = (req,res,id,userId) =>{
 
 
       saveWalletToFile(wallets,filePath);
+
+
 
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(wallet));
@@ -83,6 +107,8 @@ const retirerWallet = (req,res,id,userId) =>{
 const deposerWallet = async (req, res, id,user) => {
   let body = "";
   const wallets = await getWalletFromFile(filePath);
+    let transctions=[];
+  transctions = getWalletFromFile(waletTransactionPath);
 
   req.on("data", chunk => {
     body += chunk.toString();
@@ -112,10 +138,18 @@ const deposerWallet = async (req, res, id,user) => {
          wallet.sold += Number(parsed.amount);
 
          saveWalletToFile(wallets,filePath);
+          transction = {
+            id:transctions.length + 1,
+            type:"deposer",
+            user: user,
+            amount:"+"+parsed.amount,
+            date_action:formattedDate,
+        }
+        transctions.push(transction);
+        saveWalletToFile(transctions,waletTransactionPath);
 
          res.writeHead(200, { "Content-Type": "application/json" });
          res.end(JSON.stringify(wallet));
-
       }else{
          res.writeHead(200, { "Content-Type": "application/json" });
          res.end(JSON.stringify("Accès non autorisé"));
